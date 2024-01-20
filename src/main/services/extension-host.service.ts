@@ -11,7 +11,6 @@ import {
 import logger, { formatLog, WARN_TAG } from '@shared/services/logger.service';
 import { waitForDuration } from '@shared/utils/util';
 import { ChildProcess, ChildProcessByStdio, fork, spawn } from 'child_process';
-import { app } from 'electron';
 import path from 'path';
 import { Readable } from 'stream';
 
@@ -86,7 +85,7 @@ async function startExtensionHost() {
     ...getCommandLineArgumentsToForward(),
   ];
 
-  if (app.isPackaged) {
+  if (globalThis.isPackaged) {
     extensionHost = fork(
       path.join(__dirname, '../extension-host/extension-host.js'),
       [ARG_PACKAGED, ...sharedArgs],

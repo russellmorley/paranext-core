@@ -385,7 +385,9 @@ function createDockLayoutAsyncVar(): AsyncVariable<PapiDockLayout> {
  * Do not save this variable out anywhere because it can change, invalidating the old one (see
  * `registerDockLayout`)
  */
-let papiDockLayoutVar = createDockLayoutAsyncVar();
+// eslint-disable-next-line no-undef-init
+let papiDockLayoutVar: AsyncVariable<PapiDockLayout>;
+if (!globalThis.standalone) papiDockLayoutVar = createDockLayoutAsyncVar();
 
 /**
  * WARNING: DO NOT USE THIS VARIABLE DIRECTLY. USE `getDockLayoutSync()`
@@ -1051,15 +1053,23 @@ export const getWebView = async (
     allowedFrameSources,
   };
 
-  const updatedLayout = (await getDockLayout()).addWebViewToDock(updatedWebView, layout);
+  if (!globalThis.standalone) {
+    const updatedLayout = (await getDockLayout()).addWebViewToDock(updatedWebView, layout);
 
-  // If we received a layout (meaning it created a new webview instead of updating an existing one),
-  // inform web view consumers that we added a new web view
-  if (updatedLayout)
+    // If we received a layout (meaning it created a new webview instead of updating an existing one),
+    // inform web view consumers that we added a new web view
+    if (updatedLayout)
+      onDidAddWebViewEmitter.emit({
+        webView: convertWebViewDefinitionToSaved(updatedWebView),
+        layout: updatedLayout,
+      });
+  } else {
     onDidAddWebViewEmitter.emit({
-      webView: convertWebViewDefinitionToSaved(updatedWebView),
-      layout: updatedLayout,
+      webView: updatedWebView,
+      layout,
+      webViewFull: updatedWebView,
     });
+  }
 
   return webView.id;
 };

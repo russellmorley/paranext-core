@@ -120,6 +120,7 @@ export type Layout = TabLayout | FloatLayout | PanelLayout;
 export type AddWebViewEvent = {
   webView: SavedWebViewDefinition;
   layout: Layout;
+  webViewFull?: WebViewDefinition;
 };
 
 /** Props that are passed to the web view tab component */

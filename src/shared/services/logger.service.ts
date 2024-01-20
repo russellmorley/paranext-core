@@ -107,7 +107,14 @@ export function formatLog(message: string, serviceName: string, tag = '') {
 
 if (isClient()) {
   log.transports.console.level = globalThis.logLevel;
-  if (isRenderer())
+  if (isRenderer()) {
+    // FIXME: Russell - this is never true because src/renderer/globalThis.model imports
+    // papi-frontend.service which eventually imports utils.ts which imports logger.service
+    // before setting globalThis.processType. Believe the best way to fix this is to eliminate
+    // globalThis.model's imports and leave it to the importers to import them, but don't
+    // have time to do this and test and logger still works in browser, it just constantly repeats
+    // that initialization hasn't completed.
+    if (globalThis.standalone) log.initialize();
     // On the renderer, insert formatting before sending
     log.hooks.push((message) => {
       const caller = identifyCaller();
@@ -124,6 +131,7 @@ if (isClient()) {
         ),
       };
     });
+  }
   if (isExtensionHost())
     // Add a tag for warnings so we can recognize them outside the process.
     log.hooks.push((message) => {

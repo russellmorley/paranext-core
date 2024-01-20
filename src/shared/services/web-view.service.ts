@@ -48,8 +48,11 @@ async function initialize(): Promise<void> {
 
 const webViewService: WebViewServiceType = {
   getWebView: async (webViewType: WebViewType, layout?: Layout, options?: GetWebViewOptions) => {
-    await initialize();
-    return networkObject.getWebView(webViewType, layout, options);
+    if (!globalThis.standalone) {
+      await initialize();
+      return networkObject.getWebView(webViewType, layout, options);
+    }
+    return undefined;
   },
   onDidAddWebView,
 };

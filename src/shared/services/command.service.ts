@@ -103,21 +103,26 @@ export const initialize = () => {
 
     // Register built-in commands
     if (isRenderer()) {
-      // TODO: make a registerRequestHandlers function that we use here and in NetworkService.initialize?
-      const unsubPromises = Object.entries(rendererCommandFunctions).map(([commandName, handler]) =>
-        // Re-assert type of `commandName` even though the type is actually a string ultimately.
-        // eslint-disable-next-line no-type-assertion/no-type-assertion
-        registerCommandUnsafe(commandName as CommandNames, handler),
-      );
+      try {
+        // TODO: make a registerRequestHandlers function that we use here and in NetworkService.initialize?
+        const unsubPromises = Object.entries(rendererCommandFunctions).map(
+          ([commandName, handler]) =>
+            // Re-assert type of `commandName` even though the type is actually a string ultimately.
+            // eslint-disable-next-line no-type-assertion/no-type-assertion
+            registerCommandUnsafe(commandName as CommandNames, handler),
+        );
 
-      // Wait to successfully register all commands
-      const unsubscribeCommands = aggregateUnsubscriberAsyncs(await Promise.all(unsubPromises));
+        // Wait to successfully register all commands
+        const unsubscribeCommands = aggregateUnsubscriberAsyncs(await Promise.all(unsubPromises));
 
-      // On closing, try to remove command listeners
-      // TODO: should do this on the server when the connection closes or when the server exists as well
-      window.addEventListener('beforeunload', async () => {
-        await unsubscribeCommands();
-      });
+        // On closing, try to remove command listeners
+        // TODO: should do this on the server when the connection closes or when the server exists as well
+        window.addEventListener('beforeunload', async () => {
+          await unsubscribeCommands();
+        });
+      } catch (err) {
+        console.log('Commands already registered. Skipping.');
+      }
     }
 
     isInitialized = true;

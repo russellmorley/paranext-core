@@ -53,6 +53,8 @@ declare global {
   var getWebViewDefinitionUpdatableProperties: GetWebViewDefinitionUpdatableProperties;
   /** JSDOC DESTINATION UpdateWebViewDefinition */
   var updateWebViewDefinition: UpdateWebViewDefinition;
+
+  var standalone: boolean;
 }
 /* eslint-enable */
 
@@ -63,3 +65,5 @@ export enum ProcessType {
   Renderer = 'renderer',
   ExtensionHost = 'extension-host',
 }
+
+globalThis.standalone = true;

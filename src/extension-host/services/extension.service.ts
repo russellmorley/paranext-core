@@ -576,7 +576,14 @@ async function activateExtension(extension: ExtensionInfo): Promise<ActiveExtens
   Object.freeze(context);
 
   // Activate the extension
-  await extensionModule.activate(context);
+  logger.info(`Starting activation for extension ${extension.name}`);
+  try {
+    await extensionModule.activate(context);
+    logger.info(`Successfully activated extension ${extension.name}`);
+  } catch (err) {
+    // eslint-disable-next-line prefer-promise-reject-errors
+    return Promise.reject(`Failed to activate extension ${extension.name}: err`);
+  }
 
   // Add registrations that the extension didn't explicitly make itself
   if (extensionModule.deactivate) context.registrations.add(extensionModule.deactivate);
@@ -673,14 +680,16 @@ async function activateExtensions(extensions: ExtensionInfo[]): Promise<ActiveEx
   // eslint-disable-next-line no-type-assertion/no-type-assertion
   const extensionsActive = (
     await Promise.all(
-      extensionsWithCheck.map((extensionWithCheck) =>
-        activateExtension(extensionWithCheck.extension).catch((e) => {
+      extensionsWithCheck.map((extensionWithCheck) => {
+        try {
+          return activateExtension(extensionWithCheck.extension);
+        } catch (e) {
           logger.error(
             `Extension '${extensionWithCheck.extension.name}' threw while activating! ${e}`,
           );
           return undefined;
-        }),
-      ),
+        }
+      }),
     )
   ).filter((activeExtension) => activeExtension !== undefined) as ActiveExtension[];
 
@@ -784,12 +793,16 @@ export const initialize = () => {
 
   initializePromise = (async (): Promise<void> => {
     if (isInitialized) return;
+    try {
+      await reloadExtensions(false).catch(() => logger.error('BLAH33'));
 
-    await reloadExtensions(false);
+      watchForExtensionChanges();
 
-    watchForExtensionChanges();
-
-    isInitialized = true;
+      isInitialized = true;
+    } catch (e) {
+      // logger.error(`initialized extensions failed. Investigate: ${e}`);
+      throw new LogError(`initialized extensions failed. Investigate: ${e}`);
+    }
   })();
 
   return initializePromise;
