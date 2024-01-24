@@ -403,6 +403,7 @@ declare module 'shared/global-this.model' {
      * ```
      */
     var updateWebViewDefinition: UpdateWebViewDefinition;
+    var standalone: boolean;
   }
   /** Type of Paranext process */
   export enum ProcessType {
@@ -2772,6 +2773,7 @@ declare module 'shared/models/docking-framework.model' {
   export type AddWebViewEvent = {
     webView: SavedWebViewDefinition;
     layout: Layout;
+    webViewFull?: WebViewDefinition;
   };
   /** Props that are passed to the web view tab component */
   export type WebViewTabProps = WebViewDefinition;
