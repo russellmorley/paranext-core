@@ -1,12 +1,15 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './app.component-standalone.scss';
+import { useEvent } from '@renderer/services/papi-frontend-react.service';
 import { WebViewTabProps } from '@shared/models/docking-framework.model';
 // import { WebViewType } from '@shared/models/web-view.model';
 import { getWebView, onDidAddWebView } from '@renderer/services/web-view.service-host';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { ParanextVerseChangeEvent } from 'paranext-extension-dashboard';
 import WebView from './components/web-view.component';
 import PlatformPanel from './components/docking/platform-panel.component';
-import { FoodBankSharp } from '@mui/icons-material';
+// import { FoodBankSharp } from '@mui/icons-material';
+// import logger from '@shared/services/logger.service';
 
 function Main() {
   // eslint-disable-next-line no-type-assertion/no-type-assertion
@@ -15,7 +18,7 @@ function Main() {
   const webViewType =
     window.location.pathname.substring(1).length > 1
       ? window.location.pathname.substring(1).replace('_', '.')
-      : 'paranextExtensionDashboard.react2';
+      : 'none';
 
   const state = Object.fromEntries(new URL(window.location.toString()).searchParams);
   // eslint-disable-next-line no-console
@@ -42,11 +45,33 @@ function Main() {
     async function getWebViewProps() {
       await getWebView(webViewType);
     }
-    getWebViewProps();
+    if (webViewType !== 'none') getWebViewProps();
   }, []);
 
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(webViewProps));
+
+  useEvent<ParanextVerseChangeEvent>(
+    'platform.paranextVerseChange',
+    useCallback(async ({ verseRefString, verseOffsetIncluded }) => {
+      if (webViewType === 'none') {
+        // eslint-disable-next-line no-undef
+        await CefSharp.BindObjectAsync('dashboardAsync');
+        // eslint-disable-next-line no-undef
+        try {
+          // eslint-disable-next-line no-undef
+          const response = await await dashboardAsync.verseChange(verseRefString);
+          // eslint-disable-next-line no-console
+          console.log(`RESPONSE ${response}}`);
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.log(`Error getting RESPONSE: ${e}`);
+        }
+      }
+    }, []),
+  );
+
+  if (webViewType === 'none') return undefined;
   return (
     <PlatformPanel>
       <WebView {...webViewProps} />
