@@ -1,11 +1,12 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './app.component-standalone.scss';
-import { useEvent } from '@renderer/services/papi-frontend-react.service';
+// import { useEvent } from '@renderer/services/papi-frontend-react.service';
 import { WebViewTabProps } from '@shared/models/docking-framework.model';
 // import { WebViewType } from '@shared/models/web-view.model';
 import { getWebView, onDidAddWebView } from '@renderer/services/web-view.service-host';
-import { useCallback, useEffect, useState } from 'react';
-import type { ParanextVerseChangeEvent } from 'paranext-extension-dashboard';
+// import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+// import type { ParanextVerseChangeEvent } from 'paranext-extension-dashboard';
 import WebView from './components/web-view.component';
 import PlatformPanel from './components/docking/platform-panel.component';
 // import { FoodBankSharp } from '@mui/icons-material';
@@ -45,33 +46,34 @@ function Main() {
     async function getWebViewProps() {
       await getWebView(webViewType);
     }
-    if (webViewType !== 'none') getWebViewProps();
+    // if (webViewType !== 'none') getWebViewProps();
+    getWebViewProps();
   }, []);
 
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(webViewProps));
 
-  useEvent<ParanextVerseChangeEvent>(
-    'platform.paranextVerseChange',
-    useCallback(async ({ verseRefString, verseOffsetIncluded }) => {
-      if (webViewType === 'none') {
-        // eslint-disable-next-line no-undef
-        await CefSharp.BindObjectAsync('dashboardAsync');
-        // eslint-disable-next-line no-undef
-        try {
-          // eslint-disable-next-line no-undef
-          const response = await await dashboardAsync.verseChange(verseRefString);
-          // eslint-disable-next-line no-console
-          console.log(`RESPONSE ${response}}`);
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(`Error getting RESPONSE: ${e}`);
-        }
-      }
-    }, []),
-  );
+  // useEvent<ParanextVerseChangeEvent>(
+  //   'platform.paranextVerseChange',
+  //   useCallback(async ({ verseRefString, verseOffsetIncluded }) => {
+  //     if (webViewType === 'none') {
+  //       // eslint-disable-next-line no-undef
+  //       await CefSharp.BindObjectAsync('dashboardAsync');
+  //       // eslint-disable-next-line no-undef
+  //       try {
+  //         // eslint-disable-next-line no-undef
+  //         const response = await await dashboardAsync.verseChange(verseRefString);
+  //         // eslint-disable-next-line no-console
+  //         console.log(`RESPONSE ${response}}`);
+  //       } catch (e) {
+  //         // eslint-disable-next-line no-console
+  //         console.log(`Error getting RESPONSE: ${e}`);
+  //       }
+  //     }
+  //   }, []),
+  // );
 
-  if (webViewType === 'none') return undefined;
+  // if (webViewType === 'none') return undefined;
   return (
     <PlatformPanel>
       <WebView {...webViewProps} />
