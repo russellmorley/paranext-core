@@ -57,7 +57,8 @@ if (!container) {
   throw new Error('Document root element not found!');
 }
 
-localStorage.clear();
+// localStorage.clear();
+localStorage.removeItem('client-network-connector:clientGuid');
 const root = createRoot(container);
 root.render(<App />);
 

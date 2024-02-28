@@ -27,9 +27,10 @@ function Main() {
 
   onDidAddWebView((addWebViewEvent) => {
     if (addWebViewEvent.webView.webViewType === webViewType) {
-      Object.entries(state).forEach(([key, value]) =>
-        window.setWebViewStateById(addWebViewEvent.webView.id, key, value),
-      );
+      window.setWebViewStateById(addWebViewEvent.webView.id, '_settings', state);
+      // Object.entries(state).forEach(([key, value]) =>
+      //   window.setWebViewStateById(addWebViewEvent.webView.id, key, value),
+      // );
       setWebViewProps({
         id: addWebViewEvent.webView.id,
         webViewType: addWebViewEvent.webView.webViewType,
